@@ -8,7 +8,3 @@ class EventModel(BaseModel):
     date: datetime | None
     summary: str | None = Field(default=None, max_length=120)
     category: str
-
-
-def validate_data():
-    pass
