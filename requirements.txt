@@ -2,3 +2,12 @@ pydantic
 ollama
 pyrogram
 python-dotenv
+langchain
+langchain-community
+langchain-chroma
+langchain-huggingface
+chromadb
+torch
+sentence-transformers
+transformers
+accelerate
