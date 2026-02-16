@@ -7,6 +7,11 @@ from langchain_chroma import Chroma
 from langchain_community.retrievers import BM25Retriever
 from sentence_transformers import CrossEncoder  # <-- добавили
 from schema import EventModel
+import torch
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"[INFO] Using device: {DEVICE}")
+
 
 def to_ts(dt):
     if dt is None:
@@ -31,10 +36,11 @@ def event_to_doc(e: EventModel) -> Document:
     )
 
 embeddings = HuggingFaceEmbeddings(
-    model_name="./hf_models/bge-m3",
-    model_kwargs={"device": "cpu", "trust_remote_code": True},
+    model_name="BAAI/bge-m3",
+    model_kwargs={"device": DEVICE, "trust_remote_code": True},
     encode_kwargs={"normalize_embeddings": True},
 )
+
 
 
 events = []
@@ -90,7 +96,7 @@ for d in dense_docs + bm25_docs:
 # Берём кандидатов побольше, чем top5, чтобы реранкер имел смысл
 candidates = merged[:30]  # можно 20-50
 
-reranker = CrossEncoder("DiTy/cross-encoder-russian-msmarco")
+reranker = CrossEncoder("DiTy/cross-encoder-russian-msmarco", device=DEVICE)
 pairs = [(query, d.page_content) for d in candidates]
 scores = reranker.predict(pairs)
 
