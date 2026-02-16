@@ -1,2 +1,4 @@
 pydantic
 ollama
+pyrogram
+python-dotenv
