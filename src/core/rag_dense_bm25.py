@@ -1,3 +1,5 @@
+import logging
+import sys
 import time
 import json
 from datetime import timezone
@@ -9,8 +11,12 @@ from sentence_transformers import CrossEncoder  # <-- добавили
 from schema import EventModel
 import torch
 
+
+# Add the project root to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"[INFO] Using device: {DEVICE}")
+logging.info(f"[INFO] Using device: {DEVICE}")
 
 
 def to_ts(dt):
@@ -44,7 +50,7 @@ embeddings = HuggingFaceEmbeddings(
 
 
 events = []
-with open("events.jsonl", "r", encoding="utf-8") as f:
+with open("data/events.jsonl", "r", encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         if not line:
@@ -104,4 +110,6 @@ ranked = sorted(zip(candidates, scores), key=lambda x: x[1], reverse=True)
 top5 = [doc for doc, _ in ranked[:5]]
 
 event_ids = [d.metadata["event_id"] for d in top5]
-print(event_ids)
+logging.info(event_ids)
+
+

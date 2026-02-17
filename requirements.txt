@@ -1,4 +1,14 @@
 pydantic
 ollama
-pyrogram
+kurigram
 python-dotenv
+TgCrypto-pyrofork
+langchain
+langchain-community
+langchain-chroma
+langchain-huggingface
+chromadb
+torch
+sentence-transformers
+transformers
+accelerate
