@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from datetime import datetime
 
 
@@ -6,5 +6,5 @@ class EventModel(BaseModel):
     event_id: str
     title: str
     date: datetime | None
-    summary: str | None = Field(default=None, max_length=120)
+    summary: str | None
     category: str

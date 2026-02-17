@@ -1,3 +1,4 @@
+import logging
 import sys
 import os
 import ollama
@@ -12,12 +13,13 @@ from src.utils.schema import EventModel
 
 
 class EventExtractor:
-    def __init__(self, model_name="qwen2.5:3b"):
+    def __init__(self, model_name="qwen2.5:1.5b"):
         self.model = model_name
+        self.async_client = ollama.AsyncClient()
 
-    def process_post(self, text: str, event_id: str = "") -> EventModel | None:
+    async def process_post(self, text: str, event_id: str = "") -> EventModel | None:
         try:
-            response = ollama.chat(
+            response = await self.async_client.chat(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
@@ -26,18 +28,17 @@ class EventExtractor:
                 format="json",
             )
 
-            event_data = json.loads(response["message"]["content"])
-            event_data["event_id"] = event_id  # TODO: id will be extracted via telegram
+            content = response["message"]["content"]
+            event_data = json.loads(content)
+            event_data["event_id"] = event_id
 
             return EventModel(**event_data)
 
         except ValidationError as e:
-            # TODO: add logging
-            print(f"Error validating post: {event_id}\n{e}")
+            logging.error(f"Error validating post: {event_id}\n{e}")
             return None
         except Exception as e:
-            # TODO: add logging
-            print(f"An unexpected error occurred: {e}")
+            logging.error(f"An unexpected error occurred: {e}")
             return None
 
 
@@ -46,8 +47,12 @@ if __name__ == "__main__":
     ADD POST HERE
     """
     if "ADD POST HERE" in EXAMPLE_POST:
-        print("Update EXAMPLE_POST variable in the src/llm_client.py")
-    extractor = EventExtractor(model_name="qwen2.5:1.5b")  # NOTE: this is tiny model
-    event = extractor.process_post(text=EXAMPLE_POST, event_id="1234567890")
-    if event:
-        print(event.model_dump_json(indent=2))
+        logging.info("[INFO] Update EXAMPLE_POST variable in the src/llm_client.py")
+    else:
+        import asyncio
+        async def test():
+            extractor = EventExtractor()
+            event = await extractor.process_post(text=EXAMPLE_POST, event_id="1")
+            if event:
+                print(event.model_dump_json(indent=2))
+        asyncio.run(test())
